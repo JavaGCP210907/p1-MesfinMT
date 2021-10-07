@@ -3,29 +3,29 @@ package com.revature.controllers;
 import java.util.List;
 
 import com.google.gson.Gson;
-import com.revature.models.Reimbursement;
-import com.revature.services.ReimbursementService;
+import com.revature.models.Ticket;
+import com.revature.services.TicketService;
 
 import io.javalin.http.Handler;
 
-public class ReimbursementController {
+public class TicketController {
 
-	ReimbursementService rs = new ReimbursementService(); 
+	TicketService rs = new TicketService(); 
 
-	public Handler getAllReimbursementsHandler = (ctx) -> {
+	public Handler getAllTicketsHandler = (ctx) -> {
 		
 		if(ctx.req.getSession(false) != null) { //if a session exists...
 		
 		//we create an Array with Avenger data (using the service to talk to the dao)
-		List<Reimbursement> allReimbursements = rs.getAllReimbursements();
+		List<Ticket> allTickets = rs.getAllTickets();
 		
 		//instantiate a Gson object to make JSON <-> POJO conversions (POJO - plain old java object)
 		Gson gson = new Gson();
 		
-		String JSONReimbursements = gson.toJson(allReimbursements); //convert our Java object into a JSON String
+		String JSONTickets = gson.toJson(allTickets); //convert our Java object into a JSON String
 		
-		ctx.result(JSONReimbursements); //return our Avengers
-		
+		ctx.result(JSONTickets); //return our Avengers
+		ctx.body();
 		ctx.status(200); //200 = OK (success)
 		
 		} else {

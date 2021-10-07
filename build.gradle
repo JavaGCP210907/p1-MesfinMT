@@ -46,4 +46,6 @@ dependencies {
     //JWT dependency that lets us generate JWTs (JSON Web Tokens)
     compile group: 'com.auth0', name: 'java-jwt', version: '3.12.1'
 
+    //Hibernate dependency
+    implementation group: 'org.hibernate', name: 'hibernate-core', version: '5.4.28.Final'
 }

@@ -1,38 +1,23 @@
 package com.revature.daos;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
-
 import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-
-import com.revature.models.Employee;
+import com.revature.models.User;
+import com.revature.models.Status;
 import com.revature.models.Ticket;
+import com.revature.models.Type;
 import com.revature.utils.HibernateUtil;
 
 public class TicketDao implements TicketInterface {
-
+	
 
 	@Override
 	public List<Ticket> getAllTickets() {
 		Session ses = HibernateUtil.getSession();
 		
-		
-		String hql = "from Ticket";
-	//	Session session = entityManagerFactory.openSession();
-		Query query = ses.createQuery(hql);
-		List<Ticket> ticketList = query.getResultList(); 
-
-		//Using HQL! Hibernate Query Language. It references Java Classes, not DB entities
-//		List<Ticket> ticketList = ses.createNativeQuery("FROM Ticket").list();
-	//	List<Ticket> ticketList = ses.get.;
+		List <Ticket> ticketList = ses.createQuery("From Ticket").list();
 		
 		HibernateUtil.closeSession();
 		
@@ -40,20 +25,30 @@ public class TicketDao implements TicketInterface {
 		}
 
 	@Override
-	public Ticket getTicketById(int id) {
+	public Ticket getTicketsById(int id) {
 		Session ses = HibernateUtil.getSession();
 		
-		Ticket movie = ses.get(Ticket.class, id);
-		
+		Ticket tickets = ses.get(Ticket.class, id);
+			
 		HibernateUtil.closeSession();
 		
-		return movie;
+		return tickets;
+	}
+
+	public List<Ticket> getTicketsByUserId(int id) {
+		Session ses = HibernateUtil.getSession();
+		
+		List<Ticket> tickets =ses.createQuery("FROM Ticket WHERE author = '" + id + "'").list();
+			
+		HibernateUtil.closeSession();
+		
+		return tickets;
 	}
 
 	@Override
 	public void addTicket(Ticket ticket) {
 		System.out.println("Mesfin Before DB start");
-		Session ses = HibernateUtil.getSession(); //similar to opening a Connection with JDBC
+		Session ses = HibernateUtil.getSession(); 
 		System.out.println("Mesfin After DB start");
 		
 		ses.save(ticket); 
@@ -62,37 +57,54 @@ public class TicketDao implements TicketInterface {
 	}
 
 	@Override
-	public void addEmployee(Employee employee) {
+	public void addEmployee(User user) {
 		System.out.println("Mesfin Before DB start");
-		Session ses = HibernateUtil.getSession(); //similar to opening a Connection with JDBC
+		Session ses = HibernateUtil.getSession();
 		System.out.println("Mesfin After DB start");
-		
-		ses.save(employee); 
+		ses.save(user); 
 		
 		HibernateUtil.closeSession();
 	}
+
+	public void updateStatus(Ticket ticket,User user,Status rStatus,String resolved) {
+		System.out.println("Mesfin Before DB start");
+		Session ses = HibernateUtil.getSession();
+		Transaction tran = ses.beginTransaction();
+		System.out.println("Mesfin After DB start");
+		String HQL = "UPDATE Ticket SET status = '" + rStatus.getId() + "' , resolver  = '" + user.getId() +"' , resolved  = '" + resolved +"' WHERE id = " + ticket.getId();
+		Query q = ses.createQuery(HQL);
+		q.executeUpdate();
+		tran.commit();
+		HibernateUtil.closeSession();		}
 
 	
 	@Override
 	public void updateTicket(Ticket ticket) {
 		System.out.println("Mesfin Before DB start");
 		Session ses = HibernateUtil.getSession();
-		Transaction tran = ses.beginTransaction(); //update and delete must happen within a transaction
+		Transaction tran = ses.beginTransaction();
 		System.out.println("Mesfin After DB start");
-		//updates and deletes take a little more work... You should put the query into a Query object
-		//and then make sure to executeUpdate(), similar to in JDBC.
-		
-		//Assign the Query syntax to a String
 		String HQL = "UPDATE Ticket SET status = '" + ticket.getStatus() + "' WHERE id = " + ticket.getId();
-		
-		//Instantiate a Query object with createQuery()
 		Query q = ses.createQuery(HQL);
-		
-		//Send the update to the DB just like JDBC
 		q.executeUpdate();
-		
-		//close transaction and session to prevent memory leak
 		tran.commit();
 		HibernateUtil.closeSession();		}
+
+	public void addStatus(Status status) {
+		Session ses = HibernateUtil.getSession(); 
+		
+		ses.save(status); 
+		
+		HibernateUtil.closeSession();
+	}
+
+	@Override
+	public void addType(Type type) {
+		Session ses = HibernateUtil.getSession();
+		
+		ses.save(type); 
+		
+		HibernateUtil.closeSession();
+	}
 
 }

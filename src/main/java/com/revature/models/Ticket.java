@@ -20,10 +20,10 @@ public class Ticket {
 	@Column(name = "ticket_id")
 	private int id;
 	
-	@Column(name = "amount", nullable = false) //we set a not null constraint here - movies need titles!
+	@Column(name = "amount") //we set a not null constraint here - movies need titles!
 	private double amount;
 	
-	@Column(name = "submitted", nullable = false)
+	@Column(name = "submitted")
 	private String submitted;
 
 	@Column(name = "resolved") //we set a not null constraint here - movies need titles!
@@ -32,20 +32,26 @@ public class Ticket {
 	@Column(name = "description") //we set a not null constraint here - movies need titles!
 	private String description;
 
+//    @Column(name = "receipt", unique = false, nullable = false, length = 100000)
+//    private byte[] receipt;
 	@Column(name = "receipt") //we set a not null constraint here - movies need titles!
 	private String receipt;
 
-	@Column(name = "author") //we set a not null constraint here - movies need titles!
-	private int author;
+	@ManyToOne(targetEntity = User.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@JoinColumn(name = "author")
+	private User author;
+	
+	@ManyToOne(targetEntity = User.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@JoinColumn(name = "resolver")
+	private User resolver;
 
-	@Column(name = "resolver") //we set a not null constraint here - movies need titles!
-	private int resolver;
-
-	@Column(name = "status") //we set a not null constraint here - movies need titles!
-	private String status;
-
-	@Column(name = "type") //we set a not null constraint here - movies need titles!
-	private String type;
+	@ManyToOne(targetEntity = Status.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@JoinColumn(name = "status_id")
+	private Status status;
+	
+	@ManyToOne(targetEntity = Type.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@JoinColumn(name = "type_id")
+	private Type type;
 
 	public Ticket() {
 		super();
@@ -53,7 +59,7 @@ public class Ticket {
 	}
 
 	public Ticket(int id, double amount, String submitted, String resolved, String description, String receipt,
-			int author, int resolver, String status, String type) {
+			User author, User resolver, Status status, Type type) {
 		super();
 		this.id = id;
 		this.amount = amount;
@@ -67,8 +73,19 @@ public class Ticket {
 		this.type = type;
 	}
 
-	public Ticket(double amount, String submitted, String resolved, String description, String receipt, int author,
-			int resolver, String status, String type) {
+	
+	public Ticket(double amount, String submitted,String description, User author, Status status, Type type) {
+		super();
+		this.amount = amount;
+		this.submitted = submitted;
+		this.description = description;
+		this.author = author;
+		this.status = status;
+		this.type = type;
+	}
+
+	public Ticket(double amount, String submitted, String resolved, String description, String receipt, User author,
+			User resolver, Status status, Type type) {
 		super();
 		this.amount = amount;
 		this.submitted = submitted;
@@ -129,35 +146,35 @@ public class Ticket {
 		this.receipt = receipt;
 	}
 
-	public int getAuthor() {
+	public User getAuthor() {
 		return author;
 	}
 
-	public void setAuthor(int author) {
+	public void setAuthor(User author) {
 		this.author = author;
 	}
 
-	public int getResolver() {
+	public User getResolver() {
 		return resolver;
 	}
 
-	public void setResolver(int resolver) {
+	public void setResolver(User resolver) {
 		this.resolver = resolver;
 	}
 
-	public String getStatus() {
+	public Status getStatus() {
 		return status;
 	}
 
-	public void setStatus(String status) {
+	public void setStatus(Status status) {
 		this.status = status;
 	}
 
-	public String getType() {
+	public Type getType() {
 		return type;
 	}
 
-	public void setType(String type) {
+	public void setType(Type type) {
 		this.type = type;
 	}
 
@@ -168,12 +185,12 @@ public class Ticket {
 		long temp;
 		temp = Double.doubleToLongBits(amount);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + author;
+		result = prime * result + ((author == null) ? 0 : author.hashCode());
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + id;
 		result = prime * result + ((receipt == null) ? 0 : receipt.hashCode());
 		result = prime * result + ((resolved == null) ? 0 : resolved.hashCode());
-		result = prime * result + resolver;
+		result = prime * result + ((resolver == null) ? 0 : resolver.hashCode());
 		result = prime * result + ((status == null) ? 0 : status.hashCode());
 		result = prime * result + ((submitted == null) ? 0 : submitted.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
@@ -191,7 +208,10 @@ public class Ticket {
 		Ticket other = (Ticket) obj;
 		if (Double.doubleToLongBits(amount) != Double.doubleToLongBits(other.amount))
 			return false;
-		if (author != other.author)
+		if (author == null) {
+			if (other.author != null)
+				return false;
+		} else if (!author.equals(other.author))
 			return false;
 		if (description == null) {
 			if (other.description != null)
@@ -210,7 +230,10 @@ public class Ticket {
 				return false;
 		} else if (!resolved.equals(other.resolved))
 			return false;
-		if (resolver != other.resolver)
+		if (resolver == null) {
+			if (other.resolver != null)
+				return false;
+		} else if (!resolver.equals(other.resolver))
 			return false;
 		if (status == null) {
 			if (other.status != null)

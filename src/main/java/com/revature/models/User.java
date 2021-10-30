@@ -12,12 +12,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity 
-@Table(name = "Employees") //This isn't a necessary annotation, but without it, Hibernate would call the table "Movie"
-public class Employee {
+@Table(name = "User") //This isn't a necessary annotation, but without it, Hibernate would call the table "Movie"
+public class User {
 
 	@Id //This makes this field the Primary Key
 	@GeneratedValue(strategy = GenerationType.IDENTITY) //This will make our PK serial
-	@Column(name = "employee_id")
+	@Column(name = "user_id")
 	private int id;
 	
 	@Column(name = "username", nullable = false) //we set a not null constraint here - movies need titles!
@@ -35,16 +35,16 @@ public class Employee {
 	@Column(name = "email") //we set a not null constraint here - movies need titles!
 	private String email;
 
-	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL) 
-	@JoinColumn(name = "role_id") //this is how we establish relationships - the name must equal the id of Director
+	@ManyToOne(targetEntity = Role.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@JoinColumn(name = "role_id")
 	private Role role;
 
-	public Employee() {
+	public User() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public Employee(int id, String username, String password, String first_name, String last_name, String email,
+	public User(int id, String username, String password, String first_name, String last_name, String email,
 			Role role) {
 		super();
 		this.id = id;
@@ -56,7 +56,7 @@ public class Employee {
 		this.role = role;
 	}
 
-	public Employee(String username, String password, String first_name, String last_name, String email, Role role) {
+	public User(String username, String password, String first_name, String last_name, String email, Role role) {
 		super();
 		this.username = username;
 		this.password = password;
@@ -144,7 +144,7 @@ public class Employee {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Employee other = (Employee) obj;
+		User other = (User) obj;
 		if (email == null) {
 			if (other.email != null)
 				return false;
